@@ -1,0 +1,44 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "RSS Agregator",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/A-Kimpo/frontend-bootcamp-project-11.git"
+  },
+  "keywords": [
+    "rss",
+    "posts",
+    "news"
+  ],
+  "author": "A-Kimpo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/A-Kimpo/frontend-bootcamp-project-11/issues"
+  },
+  "homepage": "https://github.com/A-Kimpo/frontend-bootcamp-project-11#readme",
+  "devDependencies": {
+    "@babel/core": "^7.21.4",
+    "@babel/preset-env": "^7.21.4",
+    "babel-loader": "^9.1.2",
+    "css-loader": "^6.7.3",
+    "eslint": "^8.38.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "html-webpack-plugin": "^5.5.0",
+    "postcss-loader": "^7.2.4",
+    "sass": "^1.61.0",
+    "sass-loader": "^13.2.2",
+    "style-loader": "^3.3.2",
+    "webpack": "^5.78.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.13.2"
+  },
+  "dependencies": {
+    "bootstrap": "^5.2.3"
+  }
+}
