@@ -5,4 +5,4 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/6c3f802feeabde1c10d3/maintainability)](https://codeclimate.com/github/A-Kimpo/frontend-bootcamp-project-11/maintainability)
 
 ### Link:
-https://frontend-bootcamp-project-11-ed4tr73zi-a-kimpo.vercel.app/
+https://frontend-bootcamp-project-11-gray.vercel.app/
