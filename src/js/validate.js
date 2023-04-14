@@ -1,8 +1,26 @@
-import { string } from 'yup';
+import { string, setLocale } from 'yup';
 
 export default (url, usedUrls) => {
-  const schema = string().required().matches(/\.(rss|xml)$/).notOneOf(usedUrls);
-  return schema.validate(url).then(() => null).catch((err) => {
-    throw err;
+  setLocale({
+    mixed: {
+      notOneOf: 'notOneOf',
+      required: 'required',
+    },
+    string: {
+      url: 'url',
+    },
   });
+
+  const normilizeUrl = url.trim();
+
+  const schema = string()
+    .required()
+    .url()
+    .notOneOf(usedUrls);
+
+  return schema.validate(normilizeUrl)
+    .then(() => normilizeUrl)
+    .catch((err) => {
+      throw err;
+    });
 };
