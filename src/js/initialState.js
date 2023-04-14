@@ -1,6 +1,7 @@
 export default {
   usedUrls: [],
-  news: {},
-  feeds: {},
-  errors: [],
+  status: '',
+  feeds: [],
+  posts: [],
+  error: '',
 };
