@@ -36,13 +36,19 @@
       <div class="row">
         <div class="col-md-10 col-lg-8 mx-auto text-white">
           <div style="float: right;" class="col-auto">
-            <button id="changeLng" aria-label="add" class="h-100 btn btn-lg btn-primary px-sm-5">
-            </button>
+            <div class="dropdown">
+              <button data-locale="dropdownText" class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+              </button>
+              <ul id="changeLng" class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                <li><button data-locale="ruButton" class="dropdown-item"></button></li>
+                <li><button data-locale="enButton" class="dropdown-item"></button></li>
+              </ul>
+            </div>
           </div>
-          <h1 id='title' class="display-3 mb-0">
+          <h1 id='title' data-locale="title" class="display-3 mb-0">
             RSS агрегатор
           </h1>
-          <p class="lead">
+          <p class="lead" data-locale="underTitle">
             Начните читать RSS сегодня! Это легко, это красиво.
           </p>
           <form action="" class="rss-form text-body">
@@ -51,22 +57,22 @@
                 <div class="form-floating">
                   <input id="url-input" autofocus name="url" aria-label="url" class="form-control w-100"
                     placeholder="ссылка RSS" autocomplete="off">
-                  <label for="url-input">
+                  <label data-locale="labelForInput" for="url-input">
                     Ссылка RSS
                   </label>
                 </div>
               </div>
               <div class="col-auto">
-                <button type="submit" aria-label="add" class="h-100 btn btn-lg btn-primary px-sm-5">
+                <button type="submit" data-locale="button" aria-label="add" class="h-100 btn btn-lg btn-primary px-sm-5">
                   Добавить
                 </button>
               </div>
             </div>
           </form>
-          <p name="example" class="mt-2 mb-0 text-muted">
+          <p name="example" data-locale="example" class="mt-2 mb-0 text-muted">
             Пример: https://ru.hexlet.io/lessons.rss
           </p>
-          <p class="feedback m-0 position-absolute small text-danger">
+          <p class="feedback m-0 position-absolute small">
           </p>
         </div>
       </div>
@@ -82,7 +88,7 @@
   </main>
   <footer class="footer border-top py-3 mt-5 bg-light">
     <div class="container-xl">
-      <div class="text-center"></div>
+      <div data-locale="footerText" class="text-center"></div>
     </div>
   </footer>
 </body>

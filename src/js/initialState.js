@@ -1,7 +1,9 @@
 export default {
+  lng: '',
   usedUrls: [],
-  status: '',
   feeds: [],
   posts: [],
+  watchedPosts: [],
+  status: '',
   error: '',
 };

@@ -4,11 +4,11 @@ import state from './view.js';
 import validate from './validate.js';
 import parser from './parser.js';
 
-const getLoadData = (url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`)
+const getLoadData = (url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`, { timeout: 5000 })
   .then((response) => {
     if (response.status === 200 && response.data.contents !== null) {
       return response;
-    } throw new Error('RSS not found');
+    } throw new Error('networkError');
   });
 
 export default () => {
@@ -19,31 +19,60 @@ export default () => {
     const formData = new FormData(e.target);
     const url = formData.get('url');
 
-    validate(url, state.usedUrls, state.localization)
+    validate(url, state.usedUrls)
       .then((validatedUrl) => {
         state.usedUrls.push(validatedUrl);
         state.error = '';
-        return validatedUrl;
+        state.status = 'loading';
+        return getLoadData(validatedUrl);
       })
-      .then((resultUrl) => getLoadData(resultUrl))
-      .then((response) => parser(response.data.contents))
-      .then((data) => {
-        state.feeds.push(data.feed);
-        state.posts = [...state.posts, ...data.posts];
+      .then((response) => parser(response.data.contents, state.feeds))
+      .then((parsedData) => {
+        state.feeds.unshift(parsedData.feed);
+        state.posts = [...parsedData.posts, ...state.posts];
         state.status = 'loaded';
       })
       .catch((err) => {
+        if (err.message === 'Network Error') {
+          state.error = 'networkError';
+          state.status = 'filling';
+          state.usedUrls = state.usedUrls.filter((elem) => elem !== url);
+          return;
+        }
+
+        if (err.message === 'emptyRSS') {
+          state.error = err.message;
+          state.status = 'filling';
+          state.usedUrls = state.usedUrls.filter((elem) => elem !== url);
+          return;
+        }
+
         state.error = err.message;
       });
 
     form.reset();
     form.focus();
+
+    state.status = 'filling';
   });
 
   const changeLanguageButton = document.querySelector('#changeLng');
-  changeLanguageButton.addEventListener('click', () => {
-    const lng = state.lng === 'ru' ? 'en' : 'ru';
-    state.localization.changeLanguage(lng);
-    state.lng = lng;
+  changeLanguageButton.addEventListener('click', ({ target }) => {
+    switch (target.dataset.locale) {
+      case 'ruButton': {
+        state.localization.changeLanguage('ru');
+        state.lng = 'ru';
+        break;
+      }
+
+      case 'enButton': {
+        state.localization.changeLanguage('en');
+        state.lng = 'en';
+        break;
+      }
+
+      default:
+        break;
+    }
   });
 };

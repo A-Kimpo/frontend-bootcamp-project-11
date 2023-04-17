@@ -5,31 +5,35 @@ export default (data) => {
 
   const xmlDocument = parser.parseFromString(data, 'text/xml');
 
+  const rss = xmlDocument.querySelector('rss');
+  if (!rss) throw new Error('emptyRSS');
+
   const channel = xmlDocument.querySelector('channel');
 
-  const channelTitle = channel.querySelector('title').textContent;
-  const channelDescription = channel.querySelector('description').textContent;
-  const channelLink = channel.querySelector('link').nextSibling.textContent.trim();
+  const feedTitle = channel.querySelector('title').textContent;
+  const feedDescription = channel.querySelector('description').textContent;
 
   const feedId = uniqueId();
+
   const feed = {
     id: feedId,
-    feedTitle: channelTitle,
-    feedDescription: channelDescription,
-    feedLink: channelLink,
+    title: feedTitle,
+    description: feedDescription,
   };
 
   const items = channel.querySelectorAll('item');
   const posts = [];
 
   items.forEach((item) => {
-    const postTitle = item.querySelector('title').textContent;
-    const postDescription = item.querySelector('description').textContent;
+    const title = item.querySelector('title').textContent;
+    const description = item.querySelector('description').textContent;
+    const link = item.querySelector('link').textContent;
 
     posts.push({
-      postTitle,
-      postDescription,
       id: uniqueId(),
+      title,
+      description,
+      link,
       feedId,
     });
   });
