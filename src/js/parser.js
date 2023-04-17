@@ -1,6 +1,6 @@
 import uniqueId from 'lodash/uniqueId.js';
 
-export default (data) => {
+export default (data, feeds = []) => {
   const parser = new DOMParser();
 
   const xmlDocument = parser.parseFromString(data, 'text/xml');
@@ -13,7 +13,9 @@ export default (data) => {
   const feedTitle = channel.querySelector('title').textContent;
   const feedDescription = channel.querySelector('description').textContent;
 
-  const feedId = uniqueId();
+  const hasFeedId = feeds.find((feed) => (feed.title === feedTitle ? feed.id : null));
+
+  const feedId = hasFeedId || uniqueId();
 
   const feed = {
     id: feedId,
@@ -26,7 +28,9 @@ export default (data) => {
 
   items.forEach((item) => {
     const title = item.querySelector('title').textContent;
-    const description = item.querySelector('description').textContent;
+    const description = item.querySelector('description').innerHTML
+      .replace('img', 'img style="width: 450px"');
+
     const link = item.querySelector('link').textContent;
 
     posts.push({

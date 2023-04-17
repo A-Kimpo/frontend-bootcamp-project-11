@@ -1,9 +1,5 @@
 export default {
   translation: {
-    languages: {
-      en: 'English',
-      ru: 'Русский',
-    },
     status: ' Загрузка...',
     modal: {},
     interfaceTexts: {
@@ -11,6 +7,8 @@ export default {
       underTitle: 'Начните читать RSS сегодня! Это легко, это красиво.',
       labelForInput: 'Ссылка RSS',
       example: 'Пример: https://ru.hexlet.io/lessons.rss, https://habr.com/ru/rss/all/all',
+      feeds: 'Фиды',
+      posts: 'Посты',
       button: 'Добавить',
       dropdownText: 'Выберите язык',
       ruButton: 'Русский',

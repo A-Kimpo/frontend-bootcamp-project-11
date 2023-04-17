@@ -1,19 +1,7 @@
 import onChange from 'on-change';
 import initialState from './initialState.js';
 
-const renderFeeds = (elements) => {
-  const feedsField = document.querySelector('.feeds');
-
-  const inner = document.createElement('div');
-  inner.className = 'card border-0';
-
-  const listTitleContainer = document.createElement('div');
-  listTitleContainer.className = 'card-body';
-
-  const listTitle = document.createElement('h2');
-  listTitle.className = 'card-title h4';
-  listTitle.textContent = 'Фиды';
-
+const getListFeeds = (elements) => {
   const list = document.createElement('ul');
   list.className = 'list-group border-0 rounded-0';
 
@@ -34,28 +22,10 @@ const renderFeeds = (elements) => {
 
     list.append(listEl);
   });
-  listTitleContainer.append(listTitle);
-
-  inner.append(listTitleContainer);
-  inner.append(list);
-
-  feedsField.textContent = '';
-  feedsField.append(inner);
+  return list;
 };
 
-const renderPosts = (elements) => {
-  const postsField = document.querySelector('.posts');
-
-  const inner = document.createElement('div');
-  inner.className = 'card border-0';
-
-  const listTitleContainer = document.createElement('div');
-  listTitleContainer.className = 'card-body';
-
-  const listTitle = document.createElement('h2');
-  listTitle.className = 'card-title h4';
-  listTitle.textContent = 'Посты';
-
+const getListPosts = (elements, posts) => {
   const list = document.createElement('ul');
   list.className = 'list-group border-0 rounded-0';
 
@@ -79,104 +49,182 @@ const renderPosts = (elements) => {
     elButton.setAttribute('data-bs-target', '#modal');
     elButton.textContent = 'Просмотр';
 
+    if (posts.has(element.id)) {
+      elLink.classList.replace('fw-bold', 'fw-normal');
+      elLink.classList.add('link-secondary');
+
+      elButton.classList.replace('btn-outline-primary', 'btn-outline-secondary');
+    }
+
     listEl.append(elLink);
     listEl.append(elButton);
 
     list.append(listEl);
   });
+
+  return list;
+};
+
+const renderList = (list, localeData) => {
+  const container = document.querySelector(`.${localeData.keyLocale}`);
+
+  const inner = document.createElement('div');
+  inner.className = 'card border-0';
+
+  const listTitleContainer = document.createElement('div');
+  listTitleContainer.className = 'card-body';
+
+  const listTitle = document.createElement('h2');
+  listTitle.className = 'card-title h4';
+  listTitle.setAttribute('data-locale', localeData.keyLocale);
+  listTitle.textContent = localeData.listTitleText;
+
   listTitleContainer.append(listTitle);
 
   inner.append(listTitleContainer);
   inner.append(list);
 
-  postsField.textContent = '';
-  postsField.append(inner);
+  container.textContent = '';
+  container.append(inner);
+};
+
+const renderError = (localization, value, message, form) => {
+  const parent = form.parentNode;
+  const errMessage = message;
+  const input = document.querySelector('#url-input');
+
+  if (value.length !== 0) {
+    errMessage.classList.remove('text-success');
+    errMessage.classList.add('text-danger');
+    errMessage.textContent = localization.t(`errors.${value}`);
+
+    input.classList.add('is-invalid');
+    parent.append(message);
+  } else {
+    errMessage.classList.remove('text-danger');
+    errMessage.textContent = '';
+
+    input.classList.remove('is-invalid');
+  }
+};
+
+const renderLocalization = (state, message) => {
+  const feedback = message;
+
+  const textElements = document.querySelectorAll('[data-locale]');
+  textElements.forEach((textElement) => {
+    const keyLocale = textElement.getAttribute('data-locale');
+    const interfaceElement = textElement;
+    interfaceElement.textContent = state.localization.t(`interfaceTexts.${keyLocale}`);
+  });
+
+  if (message.classList.contains('text-danger')) {
+    feedback.textContent = state.localization.t(`errors.${state.error}`);
+  }
+
+  if (message.classList.contains('text-success')) {
+    feedback.textContent = state.localization.t('RSSloaded');
+  }
+};
+
+const renderModal = (modal) => {
+  const title = document.querySelector('.modal-title');
+  title.textContent = modal.title;
+
+  const description = document.querySelector('.modal-body');
+  description.innerHTML = modal.description;
+
+  const linkReadFull = document.querySelector('.full-article');
+  linkReadFull.setAttribute('href', modal.link);
+};
+
+const renderStatus = (localization, status, message, form) => {
+  const button = document.querySelector('[type="submit"]');
+  const feedback = message;
+  const parent = form.parentNode;
+
+  switch (status) {
+    case 'loading': {
+      button.setAttribute('disabled', '');
+      button.textContent = localization.t('status');
+
+      const spinner = document.createElement('span');
+      spinner.className = 'spinner-grow spinner-grow-sm';
+      spinner.setAttribute('role', 'status');
+      spinner.setAttribute('aria-hidden', 'true');
+
+      button.prepend(spinner);
+      feedback.textContent = '';
+      break;
+    }
+
+    case 'loaded':
+      feedback.classList.add('text-success');
+      feedback.textContent = localization.t('RSSloaded');
+
+      button.removeAttribute('disabled');
+      button.textContent = localization.t('interfaceTexts.button');
+
+      parent.append(feedback);
+      break;
+
+    case 'filling':
+      button.removeAttribute('disabled');
+      button.textContent = localization.t('interfaceTexts.button');
+      break;
+
+    default:
+      break;
+  }
 };
 
 const watchedState = onChange(initialState, (path, value) => {
   const form = document.querySelector('.rss-form');
   const message = document.querySelector('.feedback');
-  const input = document.querySelector('#url-input');
-  const button = document.querySelector('[type="submit"]');
 
   switch (path) {
-    case 'error': {
-      const parent = form.parentNode;
+    case 'error': renderError(watchedState.localization, value, message, form);
+      break;
 
-      if (value.length !== 0) {
-        message.classList.remove('text-success');
-        message.classList.add('text-danger');
-        message.textContent = watchedState.localization.t(`errors.${value}`);
+    case 'lng': renderLocalization(watchedState, message);
+      break;
 
-        input.classList.add('is-invalid');
-        parent.append(message);
-      } else {
-        message.classList.remove('text-danger');
-        message.textContent = '';
+    case 'status': renderStatus(watchedState.localization, value, message, form);
+      break;
 
-        input.classList.remove('is-invalid');
-      }
+    case 'feeds': {
+      const localeData = {
+        listTitleText: watchedState.localization.t('interfaceTexts.feeds'),
+        keyLocale: 'feeds',
+      };
+      const listFeeds = getListFeeds(value);
 
+      renderList(listFeeds, localeData);
       break;
     }
 
-    case 'lng': {
-      const textElements = document.querySelectorAll('[data-locale]');
-      textElements.forEach((textElement) => {
-        const keyLocale = textElement.getAttribute('data-locale');
-        const interfaceElement = textElement;
-        interfaceElement.textContent = watchedState.localization.t(`interfaceTexts.${keyLocale}`);
-      });
+    case 'posts': {
+      const localeData = {
+        listTitleText: watchedState.localization.t('interfaceTexts.posts'),
+        keyLocale: 'posts',
+      };
+      const listPosts = getListPosts(value, watchedState.seenPosts);
 
-      if (message.classList.contains('text-danger')) {
-        message.textContent = watchedState.localization.t(`errors.${watchedState.error}`);
-      }
-
-      if (message.classList.contains('text-success')) {
-        message.textContent = watchedState.localization.t('RSSloaded');
-      }
-
+      renderList(listPosts, localeData);
       break;
     }
 
-    case 'status': {
-      const parent = form.parentNode;
-
-      if (value === 'loading') {
-        button.setAttribute('disabled', '');
-        button.textContent = watchedState.localization.t('status');
-
-        const spinner = document.createElement('span');
-        spinner.className = 'spinner-grow spinner-grow-sm';
-        spinner.setAttribute('role', 'status');
-        spinner.setAttribute('aria-hidden', 'true');
-
-        button.prepend(spinner);
-        message.textContent = '';
-      }
-
-      if (value === 'loaded') {
-        message.classList.add('text-success');
-        message.textContent = watchedState.localization.t('RSSloaded');
-
-        button.removeAttribute('disabled');
-        button.textContent = watchedState.localization.t('interfaceTexts.button');
-
-        parent.append(message);
-      }
-
-      if (value === 'filling') {
-        button.removeAttribute('disabled');
-        button.textContent = watchedState.localization.t('interfaceTexts.button');
-      }
-
-      break;
-    }
-
-    case 'feeds': renderFeeds(value);
+    case 'modal': renderModal(value);
       break;
 
-    case 'posts': renderPosts(value);
+    case 'seenPosts': value.forEach((id) => {
+      const postLink = document.querySelector(`a[data-id="${id}"]`);
+      postLink.classList.replace('fw-bold', 'fw-normal');
+      postLink.classList.add('link-secondary');
+
+      const postButton = document.querySelector(`button[data-id="${id}"]`);
+      postButton.classList.replace('btn-outline-primary', 'btn-outline-secondary');
+    });
       break;
 
     default: break;

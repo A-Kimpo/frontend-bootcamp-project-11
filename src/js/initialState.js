@@ -1,9 +1,14 @@
 export default {
   lng: '',
   usedUrls: [],
+  modal: {
+    title: '',
+    description: '',
+    link: '',
+  },
   feeds: [],
   posts: [],
-  watchedPosts: [],
+  seenPosts: new Set(),
   status: '',
   error: '',
 };
