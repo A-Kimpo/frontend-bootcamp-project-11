@@ -3,11 +3,11 @@ import { string, setLocale } from 'yup';
 export default (url, usedUrls) => {
   setLocale({
     mixed: {
-      notOneOf: 'notOneOf',
-      required: 'required',
+      notOneOf: 'existingUrl',
+      required: 'emptyInput',
     },
     string: {
-      url: 'url',
+      url: 'invalidUrl',
     },
   });
 

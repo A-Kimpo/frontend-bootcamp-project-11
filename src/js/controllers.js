@@ -5,34 +5,10 @@ import state from './view.js';
 import validate from './validate.js';
 import parser from './parser.js';
 
-const getLoadData = (url) => axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`, { timeout: 5000 })
-  .then((response) => {
-    if (response.status === 200 && response.data.contents !== null) {
-      return response;
-    } throw new Error('networkError');
-  });
-
-const getModalData = () => {
-  const postsField = document.querySelector('.posts');
-
-  postsField.addEventListener('click', ({ target }) => {
-    if (target.localName === 'button') {
-      const postById = state.posts.find((post) => post.id === target.dataset.id);
-
-      state.seenPosts.add(postById.id);
-
-      state.modal = {
-        title: postById.title,
-        description: postById.description,
-        link: postById.link,
-      };
-    }
-
-    if (target.localName === 'a') {
-      state.seenPosts.add(target.dataset.id);
-    }
-  });
-};
+const getLoadData = (url) => axios.get(
+  `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(url)}`,
+  { timeout: 5000 },
+);
 
 const handlerError = (err, url) => {
   if (err.message === 'Network Error' || err.message === 'timeout of 5000ms exceeded') {
@@ -61,12 +37,10 @@ const updatePosts = () => {
         state.posts,
         (newPost, statePost) => newPost.title === statePost.title,
       );
-
-      // console.log('new post:  ', newPosts);
-      // console.log('state:  ', state);
-
       state.posts = [...newPosts, ...state.posts];
-    }));
+    })
+    .catch(() => null));
+
   Promise.all(posts)
     .then(() => setTimeout(() => updatePosts(), 5000));
 };
@@ -94,14 +68,12 @@ export default () => {
         state.posts = [...parsedData.posts, ...state.posts];
         state.status = 'loaded';
       })
-      .then(() => getModalData())
+      .then(() => updatePosts())
       .catch((err) => handlerError(err, url));
 
     form.reset();
     form.focus();
   });
-
-  updatePosts();
 
   const changeLanguageButton = document.querySelector('#changeLng');
   changeLanguageButton.addEventListener('click', ({ target }) => {
@@ -120,6 +92,24 @@ export default () => {
 
       default:
         break;
+    }
+  });
+
+  const postsField = document.querySelector('.posts');
+
+  postsField.addEventListener('click', ({ target }) => {
+    const targetId = target.dataset.id;
+
+    if (targetId) state.seenPosts.add(targetId);
+
+    if (target.dataset.bsToggle === 'modal') {
+      const postById = state.posts.find((post) => post.id === targetId);
+
+      state.modal = {
+        title: postById.title,
+        description: postById.description,
+        link: postById.link,
+      };
     }
   });
 };

@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
   <title>
-    Hexlet Frontend Project
+    RSS Agregator
   </title>
 </head>
 
@@ -22,9 +22,9 @@
         <div class="modal-body text-break">
         </div>
         <div class="modal-footer">
-          <a class="btn btn-primary full-article" href="#" role="button" target="_blank"
+          <a data-locale="modalFullRead" class="btn btn-primary full-article" href="#" role="button" target="_blank"
             rel="noopener noreferrer">Читать полностью </a>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <button data-locale="modalClose" type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             Закрыть
           </button>
         </div>
@@ -63,7 +63,7 @@
                 </div>
               </div>
               <div class="col-auto">
-                <button type="submit" data-locale="button" aria-label="add" class="h-100 btn btn-lg btn-primary px-sm-5">
+                <button type="submit" data-locale="addButton" aria-label="add" class="h-100 btn btn-lg btn-primary px-sm-5">
                   Добавить
                 </button>
               </div>

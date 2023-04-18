@@ -45,9 +45,10 @@ const getListPosts = (state, elements) => {
     elButton.setAttribute('type', 'button');
     elButton.className = 'btn btn-outline-primary btn-sm';
     elButton.setAttribute('data-id', element.id);
+    elButton.setAttribute('data-locale', 'viewButton');
     elButton.setAttribute('data-bs-toggle', 'modal');
     elButton.setAttribute('data-bs-target', '#modal');
-    elButton.textContent = 'Просмотр';
+    elButton.textContent = state.localization.t('interfaceTexts.viewButton');
 
     if (state.seenPosts.has(element.id)) {
       elLink.classList.replace('fw-bold', 'fw-normal');
@@ -88,8 +89,8 @@ const renderList = (list, localeData) => {
   container.append(inner);
 };
 
-const renderLocalization = (state, message) => {
-  const feedback = message;
+const renderLocalization = (state) => {
+  const message = document.querySelector('.feedback');
 
   const textElements = document.querySelectorAll('[data-locale]');
   textElements.forEach((textElement) => {
@@ -99,38 +100,38 @@ const renderLocalization = (state, message) => {
   });
 
   if (message.classList.contains('text-danger')) {
-    feedback.textContent = state.localization.t(`errors.${state.error}`);
+    message.textContent = state.localization.t(`errors.${state.error}`);
   }
 
   if (message.classList.contains('text-success')) {
-    feedback.textContent = state.localization.t('RSSloaded');
+    message.textContent = state.localization.t('RSSloaded');
   }
 };
 
-const renderError = (localization, value, message, form) => {
-  const parent = form.parentNode;
-  const errMessage = message;
+const renderError = (localization, error) => {
+  const form = document.querySelector('.rss-form');
+  const message = document.querySelector('.feedback');
   const input = document.querySelector('#url-input');
 
-  if (value.length !== 0) {
-    errMessage.classList.remove('text-success');
-    errMessage.classList.add('text-danger');
-    errMessage.textContent = localization.t(`errors.${value}`);
+  if (error) {
+    message.classList.remove('text-success');
+    message.classList.add('text-danger');
+    message.textContent = localization.t(`errors.${error}`);
 
     input.classList.add('is-invalid');
-    parent.append(errMessage);
+    form.parentNode.append(message);
   } else {
-    errMessage.classList.remove('text-danger');
-    errMessage.textContent = '';
+    message.classList.remove('text-danger');
+    message.textContent = '';
 
     input.classList.remove('is-invalid');
   }
 };
 
-const renderStatus = (localization, status, message, form) => {
+const renderStatus = (localization, status) => {
+  const form = document.querySelector('.rss-form');
+  const message = document.querySelector('.feedback');
   const button = document.querySelector('[type="submit"]');
-  const feedback = message;
-  const parent = form.parentNode;
 
   switch (status) {
     case 'loading': {
@@ -143,23 +144,23 @@ const renderStatus = (localization, status, message, form) => {
       spinner.setAttribute('aria-hidden', 'true');
 
       button.prepend(spinner);
-      feedback.textContent = '';
+      message.textContent = '';
       break;
     }
 
     case 'loaded':
-      feedback.classList.add('text-success');
-      feedback.textContent = localization.t('RSSloaded');
+      message.classList.add('text-success');
+      message.textContent = localization.t('RSSloaded');
 
       button.removeAttribute('disabled');
-      button.textContent = localization.t('interfaceTexts.button');
+      button.textContent = localization.t('interfaceTexts.addButton');
 
-      parent.append(feedback);
+      form.parentNode.append(message);
       break;
 
     case 'filling':
       button.removeAttribute('disabled');
-      button.textContent = localization.t('interfaceTexts.button');
+      button.textContent = localization.t('interfaceTexts.addButton');
       break;
 
     default:
@@ -179,19 +180,7 @@ const renderModal = (modal) => {
 };
 
 const watchedState = onChange(initialState, (path, value) => {
-  const form = document.querySelector('.rss-form');
-  const message = document.querySelector('.feedback');
-
   switch (path) {
-    case 'lng': renderLocalization(watchedState, message);
-      break;
-
-    case 'error': renderError(watchedState.localization, value, message, form);
-      break;
-
-    case 'status': renderStatus(watchedState.localization, value, message, form);
-      break;
-
     case 'feeds': {
       const localeData = {
         listTitleText: watchedState.localization.t('interfaceTexts.feeds'),
@@ -213,6 +202,15 @@ const watchedState = onChange(initialState, (path, value) => {
       renderList(listPosts, localeData);
       break;
     }
+
+    case 'lng': renderLocalization(watchedState);
+      break;
+
+    case 'error': renderError(watchedState.localization, value);
+      break;
+
+    case 'status': renderStatus(watchedState.localization, value);
+      break;
 
     case 'modal': renderModal(value);
       break;
