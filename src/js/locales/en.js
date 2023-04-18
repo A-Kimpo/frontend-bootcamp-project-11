@@ -17,7 +17,7 @@ export default {
     },
     RSSloaded: 'RSS loaded success',
     errors: {
-      url: 'URL must be correct.',
+      url: 'Link must be valid URL.',
       required: 'Input field must not to be empty',
       notOneOf: 'URL has used already',
       networkError: 'Network conection is bad',

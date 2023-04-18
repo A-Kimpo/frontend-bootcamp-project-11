@@ -25,7 +25,7 @@ const getListFeeds = (elements) => {
   return list;
 };
 
-const getListPosts = (elements, posts) => {
+const getListPosts = (state, elements) => {
   const list = document.createElement('ul');
   list.className = 'list-group border-0 rounded-0';
 
@@ -49,7 +49,7 @@ const getListPosts = (elements, posts) => {
     elButton.setAttribute('data-bs-target', '#modal');
     elButton.textContent = 'Просмотр';
 
-    if (posts.has(element.id)) {
+    if (state.seenPosts.has(element.id)) {
       elLink.classList.replace('fw-bold', 'fw-normal');
       elLink.classList.add('link-secondary');
 
@@ -88,26 +88,6 @@ const renderList = (list, localeData) => {
   container.append(inner);
 };
 
-const renderError = (localization, value, message, form) => {
-  const parent = form.parentNode;
-  const errMessage = message;
-  const input = document.querySelector('#url-input');
-
-  if (value.length !== 0) {
-    errMessage.classList.remove('text-success');
-    errMessage.classList.add('text-danger');
-    errMessage.textContent = localization.t(`errors.${value}`);
-
-    input.classList.add('is-invalid');
-    parent.append(message);
-  } else {
-    errMessage.classList.remove('text-danger');
-    errMessage.textContent = '';
-
-    input.classList.remove('is-invalid');
-  }
-};
-
 const renderLocalization = (state, message) => {
   const feedback = message;
 
@@ -127,15 +107,24 @@ const renderLocalization = (state, message) => {
   }
 };
 
-const renderModal = (modal) => {
-  const title = document.querySelector('.modal-title');
-  title.textContent = modal.title;
+const renderError = (localization, value, message, form) => {
+  const parent = form.parentNode;
+  const errMessage = message;
+  const input = document.querySelector('#url-input');
 
-  const description = document.querySelector('.modal-body');
-  description.innerHTML = modal.description;
+  if (value.length !== 0) {
+    errMessage.classList.remove('text-success');
+    errMessage.classList.add('text-danger');
+    errMessage.textContent = localization.t(`errors.${value}`);
 
-  const linkReadFull = document.querySelector('.full-article');
-  linkReadFull.setAttribute('href', modal.link);
+    input.classList.add('is-invalid');
+    parent.append(errMessage);
+  } else {
+    errMessage.classList.remove('text-danger');
+    errMessage.textContent = '';
+
+    input.classList.remove('is-invalid');
+  }
 };
 
 const renderStatus = (localization, status, message, form) => {
@@ -178,15 +167,26 @@ const renderStatus = (localization, status, message, form) => {
   }
 };
 
+const renderModal = (modal) => {
+  const title = document.querySelector('.modal-title');
+  title.textContent = modal.title;
+
+  const description = document.querySelector('.modal-body');
+  description.innerHTML = modal.description;
+
+  const linkReadFull = document.querySelector('.full-article');
+  linkReadFull.setAttribute('href', modal.link);
+};
+
 const watchedState = onChange(initialState, (path, value) => {
   const form = document.querySelector('.rss-form');
   const message = document.querySelector('.feedback');
 
   switch (path) {
-    case 'error': renderError(watchedState.localization, value, message, form);
+    case 'lng': renderLocalization(watchedState, message);
       break;
 
-    case 'lng': renderLocalization(watchedState, message);
+    case 'error': renderError(watchedState.localization, value, message, form);
       break;
 
     case 'status': renderStatus(watchedState.localization, value, message, form);
@@ -208,7 +208,7 @@ const watchedState = onChange(initialState, (path, value) => {
         listTitleText: watchedState.localization.t('interfaceTexts.posts'),
         keyLocale: 'posts',
       };
-      const listPosts = getListPosts(value, watchedState.seenPosts);
+      const listPosts = getListPosts(watchedState, value);
 
       renderList(listPosts, localeData);
       break;
@@ -229,8 +229,6 @@ const watchedState = onChange(initialState, (path, value) => {
 
     default: break;
   }
-
-  return null;
 });
 
 export default watchedState;
